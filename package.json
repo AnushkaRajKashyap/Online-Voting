@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "start:prod": "nodemon index.js",
     "test": "NODE_ENV=test jest --detectOpenHandles",
     "prepare": "husky install"
   },
