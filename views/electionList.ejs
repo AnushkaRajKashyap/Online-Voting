@@ -1,0 +1,23 @@
+<div class="grid grid-cols-6">
+    <div class="col-start-3 col-span-2">
+        <div class="election-list">
+            <p>Total number of election: <%=elections.length%></p>
+        </div>
+        <table class="border-2">
+            <tr>
+                <th>S.No.</th>
+                <th>Election Name</th>
+            </tr>
+        
+    
+            <% for(let i = 0; i < elections.length; i++) { %>
+            <tr>
+                <td><%= i+1%> </td>
+                <td><%= elections[i].name %></td>
+                
+            </tr>
+            <% } %>
+            
+    </table>
+  </div>
+</div>

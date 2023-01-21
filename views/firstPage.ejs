@@ -1,16 +1,46 @@
 <html>
     <head>
-          <title>Online-Voting</title>
+        <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="./css/styles.css" rel="stylesheet"> 
+    <title>Online-Voting</title>
     </head>
     <body>
-        <div class="grid grid-cols-6">
-            <div class="col-start-1">
-                <a class='text-red-800' href="/signout">signout</a>
+        <%- include('signout.ejs') %>
+        <div class="grid grid-cols-3">
+            <div class="col-start-2 col-span-1">
+                <h1>Hello this is the dashboard</h1>
+                <div>
+                    <% if(messages && messages.error && messages.error.length > 0)  { %>
+                        <% for(var i=0; i<messages.error.length; i++) { %>
+                                <p class="rounded-full border-2 p-2 bg-red-400 text-white"> <%= messages.error[i] %></p>
+                        <% } %>
+                      <% } %>
+                </div> 
+                <form action="/addElection" method="post" class="border-2">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <div class="py-3">
+                        <label for="electionName">Election Name:</label>
+                        <input type="text" name="electionName" 
+                        class="border border-gray-700 text-gray-900 rounded p-2 w-full">
+                    </div>
+                   
+                    <div class="py-3">
+                        <button type="submit" class="text-white bg-red-700 hover:bg-red-900 font-medium rounded px-5 py-2">Add New Election</button>
+                    </div>
+                </form>
             </div>
-            <div class="election-list">
-                <p>Total number of election: <%=elections.length%></p>
-            </div>
-    
+            
+        </div>
+        
+
+        
+        
+           
+            <%- include('electionList.ejs') %>
         </div>
     </body>
     

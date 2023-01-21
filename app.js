@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
-const {req, res} = require('express');
+const {request, response} = require('express');
 const express = require('express');
 const app = express();
 const csrf = require('tiny-csrf');
@@ -23,8 +22,10 @@ const path = require('path');
 
 app.set('views',path.join(__dirname,'views'));
 
+// seting the ejs is the engine
 app.set('view engine', 'ejs');
 
+// setting the css folder 
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(flash());
@@ -36,18 +37,19 @@ app.use(csrf('this_should_be_32_character_long', ['POST', 'PUT', 'DELETE']));
 app.use(session({
   secret:"this is my secret-122333444455555",
   cookie:{
-    maxAge: 24 * 60 * 60 * 1000 
+    maxAge: 24 * 60 * 60 * 1000 // that will be equal to 24 Hours / A whole day
   }
 }))
 
+// user model imported here
 const {
   Admins,Elections,
 } = require("./models");
 
 app.use(passport.initialize());
 app.use(passport.session());
-app.use((req, res, next)=>{
-  res.locals.messages = req.flash();
+app.use((request, response, next)=>{
+  response.locals.messages = request.flash();
   next();
 });
 
@@ -93,86 +95,112 @@ passport.deserializeUser((id,done) => {
   })
 })
 
-app.get('/', async (req, res)=>{
-  if(req.user)
+app.get('/', async (request, response)=>{
+  if(request.user)
   {
-    res.redirect('/firstPage');
+    response.redirect('/firstPage');
   }
   else{  
-  res.render('index', {
+  response.render('index', {
       title: 'Online Voting Platform',
-      csrfToken: req.csrfToken(),
+      csrfToken: request.csrfToken(),
     });
   }
 });
 
-app.get('/signup',(req,res)=>{
-  res.render('signup',{
+app.get('/signup',(request,response)=>{
+  response.render('signup',{
     title: 'Sign Up',
-    csrfToken: req.csrfToken(),
+    csrfToken: request.csrfToken(),
   });
 });
 
-app.post("/admins", async (req, res) => {
-  let hashedPwd = await bcrypt.hash(req.body.password, saltRounds);
-  if (req.body.password === "") hashedPwd = "";
+app.post("/users", async (request, response) => {
+  let hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
+  if (request.body.password === "") hashedPwd = "";
   try {
     const user = await Admins.create({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
+      firstName: request.body.firstName,
+      lastName: request.body.lastName,
+      email: request.body.email,
       password: hashedPwd,
     });
-    req.login(user, (err) => {
+    request.login(user, (err) => {
       if (err) {
         console.log(err);
       }
-      res.redirect("/firstPage");
+      response.redirect("/firstPage");
     });
   } catch (error) {
     console.log(error);
     if ("errors" in error)
-      req.flash(
+      request.flash(
         "error",
         error.errors.map((error) => error.message)
       );
-    res.redirect("/signup");
+    response.redirect("/signup");
   }
 });
 
-app.get('/firstPage',connectEnsureLogin.ensureLoggedIn(),async (req,res)=>{
-  const currentUserId = req.user.id;
+app.get('/firstPage',connectEnsureLogin.ensureLoggedIn(),async (request,response)=>{
+  const currentUserId = request.user.id;
   const elections = await Elections.findAllElectionOfUser(currentUserId);  
-  res.render('firstPage',{
+  response.render('firstPage',{
     title: 'firstPage',
     elections,
-    csrfToken: req.csrfToken(),
+    csrfToken: request.csrfToken(),
   });
 });
 
-app.get('/login',(req,res)=>{
-  res.render('login',{
+app.get('/login',(request,response)=>{
+  response.render('login',{
     title:"Login",
-    csrfToken: req.csrfToken(),
+    csrfToken: request.csrfToken(),
   });
 });
 
 app.post('/session',passport.authenticate('local',{
   failureRedirect: '/login',
   failureFlash: true,
-}),(req,res)=>{
-  console.log(req.user);
-  res.redirect('/firstPage');
+}),(request,response)=>{
+  console.log(request.user);
+  response.redirect('/firstPage');
 })
 
-app.get('/signout',(req,res, next) => {
-  req.logOut((err)=>{
+app.get('/signout',(request,response, next) => {
+  request.logOut((err)=>{
     if(err)
     {
       return next(err);
     }
-    res.redirect('/');
+    response.redirect('/');
   })
 })
+
+app.post(
+  "/addElection",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    if(!request.body.electionName)
+    {
+      request.flash("error", "Election name can't be empty");
+      return response.redirect("/firstPage");
+    }  
+    try {
+        const loggedInUser = request.user.id;
+        await Elections.createNewElection(request.body.electionName, loggedInUser);
+        request.flash("success", "New election has been added");
+        return response.redirect("/firstPage");
+      } catch (error) {
+        console.log(error);
+        if ("errors" in error)
+          request.flash(
+            "error",
+            error.errors.map((error) => error.message)
+          );
+        return response.redirect("/firstPage");
+      }
+    }
+);
 
 module.exports = app;

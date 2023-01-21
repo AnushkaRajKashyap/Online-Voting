@@ -19,11 +19,20 @@ module.exports = (sequelize, DataTypes) => {
     {
       return this.findAll({where:{adminId}});
     }
+    static createNewElection(name, adminId) {
+      return this.create({
+        name,
+        start: false,
+        end: false,
+        adminId,
+      });
+    }
   }
   Elections.init({
     name: DataTypes.STRING,
     start: DataTypes.STRING,
-    end: DataTypes.STRING
+    end: DataTypes.STRING,
+   
   }, {
     sequelize,
     modelName: 'Elections',
