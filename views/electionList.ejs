@@ -1,23 +1,45 @@
-<div class="grid grid-cols-6">
-    <div class="col-start-3 col-span-2">
+<div class="grid grid-cols-4">
+    <div class="col-start-2 col-span-2">
+        <%
+        if(elections.length==0)
+        {
+        %>
+        <p>You have not created any election yet. </p>
+        <%   
+        }
+        else{
+        %>
         <div class="election-list">
             <p>Total number of election: <%=elections.length%></p>
         </div>
-        <table class="border-2">
+        <table class="table-auto border border-collapse border-slate-400 max-w-prose">
             <tr>
-                <th>S.No.</th>
-                <th>Election Name</th>
+                <th class="border border-slate-300">Edit</th>
+                <th class="border border-slate-300">Delete</th>
+                <th class="border border-slate-300">S.No.</th>
+                <th class="border border-slate-300">Election Name</th>
+                <th class="border border-slate-300">Manage Ballot(Question/Voters)</th>
+              
+                <th class="border border-slate-300">Launch Election</th>
             </tr>
         
     
             <% for(let i = 0; i < elections.length; i++) { %>
             <tr>
-                <td><%= i+1%> </td>
-                <td><%= elections[i].name %></td>
+                <td class="border border-slate-500"><i class="bi bi-pencil-square"></i></td>
+                <td class="border border-slate-500"><i class="bi bi-x-octagon-fill"></i></td>
+                <td class="border border-slate-500"><%= i+1%> </td>
+                <td class="border border-slate-500"><%= elections[i].name %></td>
+                <td class="border border-slate-500 content-center"><i class="bi bi-kanban"></i></td>
+                <td class="border border-slate-500"><i class="bi bi-rocket-takeoff"></i></td>
+                
                 
             </tr>
             <% } %>
             
-    </table>
+        </table>
+        <%
+        }
+        %>
   </div>
 </div>

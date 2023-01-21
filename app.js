@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 const {request, response} = require('express');
 const express = require('express');
@@ -43,7 +44,7 @@ app.use(session({
 
 // user model imported here
 const {
-  Admins,Elections,
+  Admins,Elections,Questions
 } = require("./models");
 
 app.use(passport.initialize());
@@ -115,7 +116,7 @@ app.get('/signup',(request,response)=>{
   });
 });
 
-app.post("/users", async (request, response) => {
+app.post("/admins", async (request, response) => {
   let hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
   if (request.body.password === "") hashedPwd = "";
   try {
@@ -201,6 +202,13 @@ app.post(
         return response.redirect("/firstPage");
       }
     }
+
 );
+app.get('election/:id/ballotForm',
+connectEnsureLogin.ensureLoggedIn(),
+    async (request, response) => {
+    
+});
+
 
 module.exports = app;
